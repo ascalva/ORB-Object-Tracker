@@ -1,7 +1,7 @@
 import time
 import cv2
 import random
-# from vWriter import VideoWriterWrapper
+from vWriter import VideoWriterWrapper
 import numpy as np
 
 """
@@ -16,6 +16,15 @@ Authors: Alberto Serrano, Stephen Kim
 # Define global variables
 M = (0,0)
 centers = []
+vidWriter = None
+
+def startVideoWriter():
+    global vidWriter
+    vidWriter = VideoWriterWrapper(frame_width, frame_height)
+
+def endVideoWriter():
+    global vidWriter
+    vidWriter.cleanup()
 
 """
 given two frames, previous and current frame, determine the search frame.
@@ -102,7 +111,7 @@ def processLiveFeed(cur, nxt, pframe, cframe):
     framebbox = bboxFromFrame(cframe)
     sbbox = bboxFromFrame(s_i)
 
-
+    # Compute features within region for current frame
     x = framebbox[0]
     y = framebbox[1]
     w = framebbox[2]
@@ -111,6 +120,7 @@ def processLiveFeed(cur, nxt, pframe, cframe):
         cur[y:y+h, x:x+w], None
     )
 
+    # Compute features within region for next adjacent frame
     s_x = sbbox[0]
     s_y = sbbox[1]
     s_w = sbbox[2]
@@ -118,14 +128,15 @@ def processLiveFeed(cur, nxt, pframe, cframe):
     kp2, des2 = orb.detectAndCompute(
         nxt[s_y:s_y+s_h, s_x:s_x+s_w], None
     )
+
     a = (x,y)
     b = (s_x, s_y)
     frame_i = cur[y:y+h, x:x+w]
     frame_ipp = nxt[s_y:s_y+s_h, s_x:s_x+s_w]
 
     if not ((des1 is None) or (des2 is None)):
-        matches   = bf.match(des1,des2)
-        matches   = sorted(matches, key=lambda val: val.distance)
+        matches = bf.match(des1,des2)
+        matches = sorted(matches, key=lambda val: val.distance)
 
         M = videoDrawMatches(frame_i, a, kp1, frame_ipp, b, kp2, matches, 0, framebbox, cur, s_i)
 
@@ -149,12 +160,13 @@ def videoDrawMatches(img1, img1_coord, kp1, img2, img2_coord, kp2, matches, coun
 
     # For each pair of points we have between both images
     # draw circles, then connect a line between them
-    x = int(bbox[0])
-    y = int(bbox[1])
+    x    = int(bbox[0])
+    y    = int(bbox[1])
     C1_x = 0
     C1_y = 0
     C2_x = 0
     C2_y = 0
+
     for mat in matches[:n_key]:
         # Get the matching keypoints for each of the images
         img1_idx = mat.queryIdx
@@ -162,10 +174,10 @@ def videoDrawMatches(img1, img1_coord, kp1, img2, img2_coord, kp2, matches, coun
 
         (x1,y1)  = get_real_coordinate(kp1[img1_idx].pt, img1_coord)
         (x2,y2)  = get_real_coordinate(kp2[img2_idx].pt, img2_coord)
-        C1_x += x1
-        C1_y += y1
-        C2_x += x2
-        C2_y += y2
+        C1_x    += x1
+        C1_y    += y1
+        C2_x    += x2
+        C2_y    += y2
 
         # Draw circles around keypoints
         cv2.circle(out, (int(x1),int(y1)), 4, (0, 0, 255), 1)

@@ -1,7 +1,6 @@
 import time
 import cv2
-from vWriter import VideoWriterWrapper
-from tracker import processLiveFeed
+from tracker import processLiveFeed, startVideoWriter, endVideoWriter
 
 """
 Implements an ORB-based object tracker as specified by the paper:
@@ -12,16 +11,10 @@ Implements an ORB-based object tracker as specified by the paper:
 Authors: Alberto Serrano, Stephen Kim
 """
 
-# Define global variables
-vidWriter = None
-
-
 def main():
-    global vidWriter
-    cap = cv2.VideoCapture(0)#"IMG_3385.MOV")
+    cap = cv2.VideoCapture("IMG_3385.MOV")
     frame_width = int(cap.get(3))
     frame_height = int(cap.get(4))
-    vidWriter = VideoWriterWrapper(frame_width, frame_height)
     time.sleep(0.3)
     prevImg = None
 
@@ -62,7 +55,7 @@ def main():
 
     # When everything done, release the capture
     cap.release()
-    vidWriter.cleanup()
+    endVideoWriter()
     # cv2.destryoAllWindows()
 
 
