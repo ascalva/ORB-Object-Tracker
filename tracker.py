@@ -1,3 +1,9 @@
+import time
+import cv2
+import random
+# from vWriter import VideoWriterWrapper
+import numpy as np
+
 """
 Implements an ORB-based object tracker as specified by the paper:
    Object Tracking Based on ORB and Temporal-Spacial Constraint by Shuang Wu,
@@ -5,63 +11,11 @@ Implements an ORB-based object tracker as specified by the paper:
    Member
 
 Authors: Alberto Serrano, Stephen Kim
-
 """
-
-import time
-import cv2
-import random
-# from vWriter import VideoWriterWrapper
-import numpy as np
 
 # Define global variables
 M = (0,0)
 centers = []
-
-# def liveFeedMatches():
-#     global vidWriter
-#     cap = cv2.VideoCapture(0)#"IMG_3385.MOV")
-#     frame_width = int(cap.get(3))
-#     frame_height = int(cap.get(4))
-#     vidWriter = VideoWriterWrapper(frame_width, frame_height)
-#     time.sleep(0.3)
-#     prevImg = None
-#
-#     # always comparing two frames, so do something else seeing first frame
-#     # prompt for ROI, then set to cframe
-#     ret, img = cap.read()
-#     # TODO: return to selectROI
-#     bbox = cv2.selectROI(img, False)
-#     #bbox = (603, 322, 136, 214) # hard coded ROI for IMG_3385.MOV
-#     prevImg = img
-#     x = int(bbox[0])
-#     y = int(bbox[1])
-#     w = int(bbox[2])
-#     h = int(bbox[3])
-#     x_i = x + w/2
-#     y_i = y + h/2
-#     cframe = (x_i, y_i, w, h)
-#     pframe = cframe
-#     while(True):
-#         # Capture frame-by-frame
-#         ret, img = cap.read()
-#
-#         # constraint to end when reading from a video file instead of a device
-#         # video stream
-#         if img is None:
-#             return
-#
-#         else:
-#             pframe, cframe = processLiveFeed(prevImg, img, pframe, cframe)
-#             prevImg = img
-#
-#         if cv2.waitKey(1) & 0xFF == ord('q'):
-#             break
-#
-#     # When everything done, release the capture
-#     cap.release()
-#     vidWriter.cleanup()
-#     # cv2.destryoAllWindows()
 
 """
 given two frames, previous and current frame, determine the search frame.
@@ -174,8 +128,7 @@ def processLiveFeed(cur, nxt, pframe, cframe):
         matches   = sorted(matches, key=lambda val: val.distance)
 
         M = videoDrawMatches(frame_i, a, kp1, frame_ipp, b, kp2, matches, 0, framebbox, cur, s_i)
-    # kp1, des1 = kp2, des2
-    # print(M)
+
     nframe = (cframe[0] + int(M[0]), cframe[1] + int(M[1]), cframe[2], cframe[3])
     return cframe, nframe
 
@@ -222,11 +175,11 @@ def videoDrawMatches(img1, img1_coord, kp1, img2, img2_coord, kp2, matches, coun
     C2_x /= n_key
     C2_y /= n_key
 
-    # TODO: debugging purposes, dispose of when no longer needed
-    print("Train: (" + str(C1_x) + ",", str(C1_y)+ ")")
-    print("Query: (" + str(C2_x) + ",", str(C2_y)+ ")")
-    print("Motion: (" + str(C2_x-C1_x) + ",", str(C2_y-C1_y)+ ")")
-    print()
+    # For debugging
+    # print("Train: (" + str(C1_x) + ",", str(C1_y)+ ")")
+    # print("Query: (" + str(C2_x) + ",", str(C2_y)+ ")")
+    # print("Motion: (" + str(C2_x-C1_x) + ",", str(C2_y-C1_y)+ ")")
+    # print()
 
     centers.append((s_i[0],s_i[1]))
     for i in range(len(centers)):
@@ -246,8 +199,6 @@ def videoDrawMatches(img1, img1_coord, kp1, img2, img2_coord, kp2, matches, coun
     cv2.imshow("Object tracking", out)
     if vidWriter is not None:
         vidWriter.write(out)
-
-    # cv2.imwrite("track_path.png", out)
 
     return C2_x - C1_x, C2_y - C1_y
 

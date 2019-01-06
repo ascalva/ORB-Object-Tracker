@@ -1,8 +1,16 @@
 import time
 import cv2
-import random
 from vWriter import VideoWriterWrapper
-import numpy as np
+from tracker import processLiveFeed
+
+"""
+Implements an ORB-based object tracker as specified by the paper:
+   Object Tracking Based on ORB and Temporal-Spacial Constraint by Shuang Wu,
+   IEEE Student Member, Yawen Fan, Shibao Zheng, IEEE Member and Hua Yang, IEEE
+   Member
+
+Authors: Alberto Serrano, Stephen Kim
+"""
 
 # Define global variables
 vidWriter = None
@@ -22,25 +30,30 @@ def main():
     ret,img = cap.read()
     bbox    = cv2.selectROI(img, False)
     prevImg = img
-    
-    x = int(bbox[0])
-    y = int(bbox[1])
-    w = int(bbox[2])
-    h = int(bbox[3])
+
+    # Extract Bounding Box features
+    x   = int(bbox[0])
+    y   = int(bbox[1])
+    w   = int(bbox[2])
+    h   = int(bbox[3])
     x_i = x + w/2
     y_i = y + h/2
+
+    # Define current and past frame
     cframe = (x_i, y_i, w, h)
     pframe = cframe
+
     while(True):
         # Capture frame-by-frame
         ret, img = cap.read()
 
-        # constraint to end when reading from a video file instead of a device
-        # video stream
+        # Constraint to end when reading from a video file instead of a device
+        # video stream.
         if img is None:
             return
 
         else:
+            # prevImg will be None for first iteration (first frame)
             pframe, cframe = processLiveFeed(prevImg, img, pframe, cframe)
             prevImg = img
 
@@ -51,3 +64,7 @@ def main():
     cap.release()
     vidWriter.cleanup()
     # cv2.destryoAllWindows()
+
+
+if __name__ == "__main__":
+    main()
