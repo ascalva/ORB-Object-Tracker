@@ -2,10 +2,10 @@
 
 ### Alberto Serrano & Stephen Kim ###
 
-Utilizes OpenCV's efficient alternative to SIFT or SURF, ORB:
+Utilizes OpenCV's efficient alternative to SIFT or SURF, ORB:\n
      ORB: an efficient alternative to SIFT or SURF, by Ethan Rublee, Vincent Rabaud, Kurt Konolige, and Gary Bradski
-     
-Implements an ORB-based object tracker as specified by the paper:
+
+Implements an ORB-based object tracker as specified by the paper:\n
    Object Tracking Based on ORB and Temporal-Spacial Constraint by Shuang Wu,
    IEEE Student Member, Yawen Fan, Shibao Zheng, IEEE Member and Hua Yang, IEEE
    Member
